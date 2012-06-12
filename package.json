@@ -1,23 +1,23 @@
 {
   "name": "grunt-dep-concat",
   "description": "Concatenate files in order based on dependencies.",
-  "version": "0.1.0",
-  "homepage": "https://github.com/lie2/grunt-dep-concat",
+  "version": "0.1.1",
+  "homepage": "https://github.com/tJener/grunt-dep-concat",
   "author": {
     "name": "Eric Li",
     "email": "li.zhe.hua@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/lie2/grunt-dep-concat.git"
+    "url": "git://github.com/tJener/grunt-dep-concat.git"
   },
   "bugs": {
-    "url": "https://github.com/lie2/grunt-dep-concat/issues"
+    "url": "https://github.com/tJener/grunt-dep-concat/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/lie2/grunt-dep-concat/blob/master/LICENSE-MIT"
+      "url": "https://github.com/tJener/grunt-dep-concat/blob/master/LICENSE-MIT"
     }
   ],
   "main": "grunt.js",

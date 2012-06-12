@@ -1,5 +1,5 @@
 // grunt-dep-concat
-// https://github.com/lie2/grunt-dep-concat
+// https://github.com/tJener/grunt-dep-concat
 //
 // Copyright (c) 2012 Eric Li
 // Licensed under the MIT license.
