@@ -31,6 +31,26 @@ module.exports = function( grunt ) {
     this.run  = [];
   };
 
+  DependencyList.prototype = {};
+
+  DependencyList.prototype.allDeps = function() {
+    return this.load.concat( this.run );
+  };
+
+  DependencyList.prototype.genTsortString = function() {
+    var tsortString = '';
+
+    _.each( this.load, function( loadDep ) {
+      tsortString += this.path + ' ' + loadDep + '\n';
+    }.bind( this ));
+
+    _.each( this.run.concat([ this.path ]), function( runDep ) {
+      tsortString += runDep + ' ' + runDep + '\n';
+    });
+
+    return tsortString;
+  };
+
   // ==========================================================================
   // TASKS
   // ==========================================================================
@@ -41,7 +61,10 @@ module.exports = function( grunt ) {
     var files = grunt.file.expandFiles( this.file.src );
     var orderedFiles = [];
     grunt.helper( 'depconcat_order_files', files, orderedFiles, function() {
-      var src = grunt.helper( 'concat', orderedFiles, { separator: this.data.separator });
+      var src = grunt.helper( 'concat', orderedFiles, {
+        separator: this.data.separator
+      });
+
       grunt.file.write( this.file.dest, src );
 
       if ( this.errorCount ) {
@@ -64,53 +87,50 @@ module.exports = function( grunt ) {
     return _( str ).trim();
   };
 
-  grunt.registerHelper( 'depconcat_order_files', function( files, orderedFiles, callback, options ) {
+  grunt.registerHelper( 'depconcat_order_files', function(
+    // Array of filenames that will be scanned to determine dependencies.
+    files,
+    // This is where the ordered files will be push'ed into.
+    orderedFiles,
+    // This helper is async, callback is called when finished.
+    callback,
+    // Optional options.
+    //   - basePath: Where all paths scanned are relative from.
+    options
+  ) {
+
+    // We destructively iterate through files, so do this on a copy.
     files = files.slice(0);
 
     options = _.defaults( options || {}, {
       basePath: ''
     });
 
-    var dependencyList, file;
-    var deps = {};
+    var depGraphString = '';
+    var checkedFiles = {};
+    var file;
     while ( null != (file = files.shift()) ) {
-      if ( !deps[ file ] ) {
-        dependencyList = null;
-
+      if ( !checkedFiles[ file ] ) {
         try {
-          dependencyList = grunt.helper( 'depconcat_file_parse_deps', file, options );
-        } catch( e ) {
-          orderedFiles.push( file );
+          var dependencyList =
+            grunt.helper( 'depconcat_file_parse_deps', file, options );
+
+          checkedFiles[ file ] = true;
+          Array.prototype.unshift.apply( files, dependencyList.allDeps() );
+          depGraphString += dependencyList.genTsortString();
         }
 
-        if ( dependencyList ) {
-          deps[ file ] = dependencyList;
-          Array.prototype.unshift.apply( files, dependencyList.load.concat( dependencyList.run ) );
+        catch( e ) {
+          // This may be a directive like '<banner:meta.banner>' or similar.
+          orderedFiles.push( file );
         }
       }
     }
 
-    var depGraphString = '';
-    var insertLoadDep = function( dependency ) {
-      depGraphString += prop + ' ' + dependency + '\n';
-    };
-
-    var insertRunDep = function( dependency ) {
-      depGraphString += dependency + ' ' + dependency + '\n';
-    };
-
-    for ( var prop in deps ) {
-      dependencyList = deps[ prop ];
-      _.each( dependencyList.load, insertLoadDep );
-      _.each( dependencyList.run,  insertRunDep  );
-
-      // This makes sure to always add each listed source file to the files
-      // being concatenated.
-      insertRunDep( dependencyList.path );
-    }
-
-    exec( 'echo "' + depGraphString + '" | tsort', function( error, stdout, stderr ) {
-      Array.prototype.push.apply( orderedFiles, _( stdout ).words( '\n' ).reverse() );
+    var command = 'echo "' + depGraphString + '" | tsort';
+    exec( command, function( error, stdout, stderr ) {
+      var tsortOrderedFiles = _( stdout ).words( '\n' ).reverse();
+      Array.prototype.push.apply( orderedFiles, tsortOrderedFiles );
 
       callback();
     });
@@ -143,13 +163,13 @@ module.exports = function( grunt ) {
     // Pull dependencies from comments.
     _.each( lines, function( line ) {
       var split = _.words( line, ':' ).map( trimElems );
+      var fileList;
 
       if ( split.length > 1 ) {
-        var fileList = deps[ split[0] ];
-        if ( Array.isArray(fileList) ) {
+        fileList = deps[ split[0] ];
+        if ( fileList ) {
           Array.prototype.push.apply(
-            fileList,
-            _.words( split[1], ',' ).map( trimElems )
+            fileList, _.words( split[1], ',' ).map( trimElems )
           );
         }
       }
@@ -162,7 +182,9 @@ module.exports = function( grunt ) {
 
     // Add deps to DependecyList.
     for ( var prop in deps ) {
-      Array.prototype.push.apply( dependencyList[ prop ], deps[prop].map(pathMap) );
+      Array.prototype.push.apply(
+        dependencyList[ prop ], deps[ prop ].map( pathMap )
+      );
     }
 
     return dependencyList;
