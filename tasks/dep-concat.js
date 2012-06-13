@@ -77,8 +77,6 @@ module.exports = function( grunt ) {
       if ( !deps[ file ] ) {
         dependencyList = null;
 
-        // grunt.log.writeln( 'Attempting to read ' + file );
-
         try {
           dependencyList = grunt.helper( 'depconcat_file_parse_deps', file, options );
         } catch( e ) {
@@ -92,8 +90,6 @@ module.exports = function( grunt ) {
       }
     }
 
-    // grunt.log.writeln( 'Done reading.' );
-
     var depGraphString = '';
     var insertLoadDep = function( dependency ) {
       depGraphString += prop + ' ' + dependency + '\n';
@@ -105,8 +101,11 @@ module.exports = function( grunt ) {
 
     for ( var prop in deps ) {
       dependencyList = deps[ prop ];
-      dependencyList.load.forEach( insertLoadDep );
-      dependencyList.run.forEach( insertRunDep );
+      _.each( dependencyList.load, insertLoadDep );
+      _.each( dependencyList.run,  insertRunDep  );
+
+      // This makes sure to always add each listed source file to the files
+      // being concatenated.
       insertRunDep( dependencyList.path );
     }
 
@@ -142,7 +141,7 @@ module.exports = function( grunt ) {
     });
 
     // Pull dependencies from comments.
-    _.forEach( lines, function( line ) {
+    _.each( lines, function( line ) {
       var split = _.words( line, ':' ).map( trimElems );
 
       if ( split.length > 1 ) {
