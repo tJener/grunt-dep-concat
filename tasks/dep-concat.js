@@ -12,8 +12,6 @@ module.exports = function( grunt ) {
   var exec = require( 'child_process' ).exec;
   var spawn = require( 'child_process' ).spawn;
 
-  var keywords = [ 'load', 'run' ];
-
   // A DependencyList describes two sets of dependencies, which I am calling
   // "loadtime" and "runtime" dependencies. "Loadtime" is when the concatenated
   // file is initially executed, and "runtime" is, well, during runtime. An
@@ -29,9 +27,8 @@ module.exports = function( grunt ) {
   // "runtime" dependency.
   var DependencyList = function DependencyList( path ) {
     this.path = path;
-    _.forEach( keywords, function( prop ) {
-      this[ prop ] = [];
-    }.bind( this ));
+    this.load = [];
+    this.run  = [];
   };
 
   // ==========================================================================
@@ -140,7 +137,7 @@ module.exports = function( grunt ) {
     }
 
     var deps = {};
-    _.forEach( keywords, function( prop ) {
+    _.each([ 'load', 'run' ], function( prop ) {
       deps[ prop ] = [];
     });
 
