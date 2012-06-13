@@ -132,6 +132,10 @@ module.exports = function( grunt ) {
       var tsortOrderedFiles = _( stdout ).words( '\n' ).reverse();
       Array.prototype.push.apply( orderedFiles, tsortOrderedFiles );
 
+      if ( stderr !== '' ) {
+        grunt.log.error( stderr );
+      }
+
       callback();
     });
   });
