@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/tJener/grunt-dep-concat.png)](http://travis-ci.org/tJener/grunt-dep-concat)
 # grunt-dep-concat
 
 Concatenate files in order based on dependencies.
