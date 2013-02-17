@@ -7,8 +7,6 @@
 'use strict';
 
 module.exports = function( grunt ) {
-  var _ = grunt.utils._;
-
   var fileGraph = require( './lib/file-graph' ).init( grunt );
 
   // ==========================================================================

@@ -28,7 +28,7 @@ exports['dep-concat'] = {
   },
 
   helper: function( test ) {
-    var _ = grunt.utils._;
+    var _ = grunt.util._;
 
     test.expect( 11 );
     var depList = fileGraph.parseFile( 'test/fixtures/main.js', {

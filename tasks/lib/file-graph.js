@@ -12,7 +12,7 @@ var exec = require( 'child_process' ).exec;
 exports.init = function( grunt ) {
   var exports = {};
 
-  var _ = grunt.utils._;
+  var _ = grunt.util._;
 
   // A DependencyList describes two sets of dependencies, which I am calling
   // "loadtime" and "runtime" dependencies. "Loadtime" is when the concatenated
