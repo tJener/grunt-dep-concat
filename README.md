@@ -69,6 +69,7 @@ grunt.initConfig({
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
 ## Release History
+* 2012/02/17 - v0.1.2rc1 - Update to support grunt 0.4.0.
 * 2012/06/12 - v0.1.1 - Initial release.
 
 ## License
