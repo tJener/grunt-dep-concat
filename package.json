@@ -28,11 +28,8 @@
   "scripts": {
     "test": "grunt test"
   },
-  "dependencies": {
-    "grunt": "~0.3.9"
-  },
   "devDependencies": {
-    "grunt": "~0.3.9"
+    "grunt": "0.3.17"
   },
   "keywords": [
     "gruntplugin"

@@ -1,4 +1,7 @@
+'use strict';
+
 var grunt = require( 'grunt' );
+var fileGraph = require( '../tasks/lib/file-graph' ).init( grunt );
 
 // ======== A Handy Little Nodeunit Reference ========
 // https://github.com/caolan/nodeunit
@@ -28,8 +31,7 @@ exports['dep-concat'] = {
     var _ = grunt.utils._;
 
     test.expect( 11 );
-    // tests here
-    var depList = grunt.helper( 'depconcat_file_parse_deps', 'test/fixtures/main.js', {
+    var depList = fileGraph.parseFile( 'test/fixtures/main.js', {
       basePath: 'test/fixtures/'
     });
 
@@ -43,7 +45,7 @@ exports['dep-concat'] = {
     ], 'correct run dependencies' );
 
     var orderedFiles = [];
-    grunt.helper( 'depconcat_order_files', [
+    fileGraph.topoSortFiles([
       'test/fixtures/main.js'
     ], orderedFiles, function() {
       var indices = {};

@@ -1,12 +1,20 @@
+// grunt-dep-concat
+// https://github.com/tJener/grunt-dep-concat
+//
+// Copyright (c) 2013 Eric Li
+// Licensed under the MIT license.
+
+'use strict';
+
 module.exports = function( grunt ) {
 
   // Project configuration.
   grunt.initConfig({
     test: {
-      files: [ 'test/**/*.js' ]
+      files: [ 'test/*_test.js' ]
     },
     lint: {
-      files: [ 'grunt.js', 'tasks/**/*.js', 'test/**/*.js' ]
+      files: [ 'grunt.js', 'tasks/**/*.js', 'test/*_test.js' ]
     },
     watch: {
       files: '<config:lint.files>',
