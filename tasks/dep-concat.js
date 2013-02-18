@@ -29,8 +29,7 @@ module.exports = function( grunt ) {
         return true;
       });
 
-      var orderedFiles = [];
-      fileGraph.topoSortFiles( sources, orderedFiles, function() {
+      fileGraph.topoSortFiles( sources, function( orderedFiles ) {
         var src = helpers.concat( orderedFiles );
 
         grunt.file.write( f.dest, src );

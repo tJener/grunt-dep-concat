@@ -44,10 +44,9 @@ exports['dep-concat'] = {
       'test/fixtures/7.js'
     ], 'correct run dependencies' );
 
-    var orderedFiles = [];
     fileGraph.topoSortFiles([
       'test/fixtures/main.js'
-    ], orderedFiles, function() {
+    ], function( orderedFiles ) {
       var indices = {};
       _.each([ 'main', 2, 5, 7, 8, 9, 10, 11 ], function( file ) {
         indices[ file ] = orderedFiles.indexOf( 'test/fixtures/' + file + '.js' );
