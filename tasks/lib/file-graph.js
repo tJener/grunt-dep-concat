@@ -115,10 +115,7 @@ exports.init = function( grunt ) {
     });
 
     var src = grunt.file.read( filepath );
-    return parseDeps( src, new DependencyList( filepath ), options );
-  };
-
-  var parseDeps = function( src, dependencyList, options ) {
+    var dependencyList = new DependencyList( filepath );
     var comment_re = /^(?:\s*\/\/\s*(.*)|\s*\/\*(.*)\*\/)$/gm;
 
     // Grab comment lines.
