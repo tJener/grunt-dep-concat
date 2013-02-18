@@ -1,7 +1,7 @@
 {
   "name": "grunt-dep-concat",
   "description": "Concatenate files in order based on dependencies.",
-  "version": "0.1.2rc1",
+  "version": "0.1.2",
   "homepage": "https://github.com/tJener/grunt-dep-concat",
   "author": {
     "name": "Eric Li",
