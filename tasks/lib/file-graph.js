@@ -13,6 +13,7 @@ exports.init = function( grunt ) {
   var exports = {};
 
   var _ = grunt.util._;
+  var push = [].push;
 
   // A DependencyList describes two sets of dependencies, which I am calling
   // "loadtime" and "runtime" dependencies. "Loadtime" is when the concatenated
@@ -56,19 +57,23 @@ exports.init = function( grunt ) {
   exports.topoSortFiles = function(
     // Array of filenames that will be scanned to determine dependencies.
     files,
-    // This is where the ordered files will be push'ed into.
-    orderedFiles,
-    // This helper is async, callback is called when finished.
-    callback,
     // Optional options.
     //   - basePath: Where all paths scanned are relative from.
-    options
+    options,
+    // This helper is async, callback is called when finished.
+    callback
   ) {
+    if ( typeof options === 'function' ) {
+      options = {};
+      callback = options;
+    }
+
+    var orderedFiles = [];
 
     // We destructively iterate through files, so do this on a copy.
     files = files.slice(0);
 
-    options = _.defaults( options || {}, {
+    options = _.defaults( options, {
       basePath: ''
     });
 
@@ -85,7 +90,7 @@ exports.init = function( grunt ) {
           depGraphString += dependencyList.genTsortString();
         }
 
-        catch( e ) {
+        catch ( e ) {
           // This may be a directive like '<banner:meta.banner>' or similar.
           orderedFiles.push( file );
         }
@@ -95,13 +100,13 @@ exports.init = function( grunt ) {
     var command = 'echo "' + depGraphString + '" | tsort';
     exec( command, function( error, stdout, stderr ) {
       var tsortOrderedFiles = _( stdout ).words( '\n' ).reverse();
-      Array.prototype.push.apply( orderedFiles, tsortOrderedFiles );
+      push.apply( orderedFiles, tsortOrderedFiles );
 
       if ( stderr !== '' ) {
         grunt.log.error( stderr );
       }
 
-      callback();
+      callback( orderedFiles );
     });
   };
 
@@ -111,51 +116,47 @@ exports.init = function( grunt ) {
     });
 
     var src = grunt.file.read( filepath );
-    return parseDeps( src, new DependencyList( filepath ), options );
-  };
-
-  var parseDeps = function( src, dependencyList, options ) {
     var comment_re = /^(?:\s*\/\/\s*(.*)|\s*\/\*(.*)\*\/)$/gm;
 
     // Grab comment lines.
-    var matches, lines = [];
+    var matches, commentLines = [];
     while ( null != (matches = comment_re.exec( src )) ) {
-      lines.push( matches[1] || matches[2] );
+      commentLines.push( matches[1] || matches[2] );
     }
 
-    var deps = {};
-    _.each([ 'load', 'run' ], function( prop ) {
-      deps[ prop ] = [];
-    });
-
     // Pull dependencies from comments.
-    _.each( lines, function( line ) {
-      var split = _.words( line, ':' ).map( trimElems );
-      var fileList;
+    var deps = new DependencyList( filepath );
+    _.each( commentLines, function( line ) {
+      var split = _.words( line, ':' );
 
       if ( split.length > 1 ) {
-        fileList = deps[ split[0] ];
+        split = split.map( trimElems );
+
+        var fileList;
+        switch ( split[0] ) {
+        case 'load':
+          fileList = deps.load;
+          break;
+        case 'run':
+          fileList = deps.run;
+          break;
+        }
+
         if ( fileList ) {
-          Array.prototype.push.apply(
-            fileList, _.words( split[1], ',' ).map( trimElems )
-          );
+          var files = _.words( split[1], ',' ).map( trimElems );
+          push.apply( fileList, files );
         }
       }
-
     });
 
-    var pathMap = function( filePath ) {
-      return path.join( options.basePath, filePath );
+    var pathMap = function( depPath ) {
+      return path.join( options.basePath, depPath );
     };
 
     // Add deps to DependecyList.
-    for ( var prop in deps ) {
-      Array.prototype.push.apply(
-        dependencyList[ prop ], deps[ prop ].map( pathMap )
-      );
-    }
-
-    return dependencyList;
+    deps.load = deps.load.map( pathMap );
+    deps.run  = deps.run.map( pathMap );
+    return deps;
   };
 
   var trimElems = function( str ) {

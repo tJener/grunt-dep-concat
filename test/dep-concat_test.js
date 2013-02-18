@@ -27,6 +27,12 @@ exports['dep-concat'] = {
     done();
   },
 
+  dist: function( test ) {
+    test.expect(1);
+    test.ok( grunt.file.exists( 'tmp/test.js' ), 'Successfully run plugin' );
+    test.done();
+  },
+
   helper: function( test ) {
     var _ = grunt.util._;
 
@@ -44,10 +50,11 @@ exports['dep-concat'] = {
       'test/fixtures/7.js'
     ], 'correct run dependencies' );
 
-    var orderedFiles = [];
     fileGraph.topoSortFiles([
       'test/fixtures/main.js'
-    ], orderedFiles, function() {
+    ], {
+      basePath: 'test/fixtures/'
+    }, function( orderedFiles ) {
       var indices = {};
       _.each([ 'main', 2, 5, 7, 8, 9, 10, 11 ], function( file ) {
         indices[ file ] = orderedFiles.indexOf( 'test/fixtures/' + file + '.js' );
@@ -67,8 +74,6 @@ exports['dep-concat'] = {
       }).length, 8, 'all files included' );
 
       test.done();
-    }, {
-      basePath: 'test/fixtures/'
     });
   }
 };

@@ -21,6 +21,16 @@ module.exports = function( grunt ) {
       },
     },
 
+    depconcat: {
+      dist: {
+        src: [ 'test/fixtures/*.js' ],
+        dest: 'tmp/test.js',
+        options: {
+          basePath: 'test/fixtures/'
+        }
+      }
+    },
+
     // Before generating any new files, remove any previously-created files.
     clean: {
       tests: ['tmp'],
@@ -42,7 +52,7 @@ module.exports = function( grunt ) {
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask( 'test', [ 'clean', 'nodeunit' ]);
+  grunt.registerTask( 'test', [ 'clean', 'depconcat', 'nodeunit' ]);
 
   // By default, lint and run all tests.
   grunt.registerTask( 'default', [ 'jshint', 'test' ]);
