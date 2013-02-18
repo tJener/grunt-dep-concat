@@ -8,6 +8,7 @@
 
 module.exports = function( grunt ) {
   var fileGraph = require( './lib/file-graph' ).init( grunt );
+  var helpers = require( 'grunt-lib-legacyhelpers' ).init( grunt );
 
   // ==========================================================================
   // TASKS
@@ -16,25 +17,32 @@ module.exports = function( grunt ) {
   grunt.registerMultiTask( 'depconcat', 'Concatenate files, ordered by dependencies.', function() {
     var done = this.async();
 
-    var files = grunt.file.expandFiles( this.file.src );
-    var orderedFiles = [];
-    fileGraph.topoSortFiles( files, orderedFiles, function() {
-      var src = grunt.helper( 'concat', orderedFiles, {
-        separator: this.data.separator
+    var options = this.options();
+
+    this.files.forEach(function( f ) {
+      var sources = f.src.filter(function( path ) {
+        if ( !grunt.file.exists( path )) {
+          grunt.log.warn( 'Source file "' + path + '" not found.' );
+          return false;
+        }
+
+        return true;
       });
 
-      grunt.file.write( this.file.dest, src );
+      var orderedFiles = [];
+      fileGraph.topoSortFiles( sources, orderedFiles, function() {
+        var src = helpers.concat( orderedFiles );
 
-      if ( this.errorCount ) {
-        done( false );
-        return;
-      }
+        grunt.file.write( f.dest, src );
 
-      grunt.log.writeln('File "' + this.file.dest + '" created.');
-      done( true );
-    }.bind( this ), {
-      basePath: this.data.basePath
-    });
+        if ( this.errorCount ) {
+          done( false );
+          return;
+        }
+
+        grunt.log.writeln('File "' + f.dest + '" created.');
+        done( true );
+      }.bind( this ), options );
+    }, this );
   });
-
 };

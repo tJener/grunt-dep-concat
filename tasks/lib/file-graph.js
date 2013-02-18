@@ -85,7 +85,7 @@ exports.init = function( grunt ) {
           depGraphString += dependencyList.genTsortString();
         }
 
-        catch( e ) {
+        catch ( e ) {
           // This may be a directive like '<banner:meta.banner>' or similar.
           orderedFiles.push( file );
         }
