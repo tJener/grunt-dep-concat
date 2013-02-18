@@ -27,6 +27,12 @@ exports['dep-concat'] = {
     done();
   },
 
+  dist: function( test ) {
+    test.expect(1);
+    test.ok( grunt.file.exists( 'tmp/test.js' ), 'Successfully run plugin' );
+    test.done();
+  },
+
   helper: function( test ) {
     var _ = grunt.util._;
 
