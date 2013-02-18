@@ -52,7 +52,9 @@ exports['dep-concat'] = {
 
     fileGraph.topoSortFiles([
       'test/fixtures/main.js'
-    ], function( orderedFiles ) {
+    ], {
+      basePath: 'test/fixtures/'
+    }, function( orderedFiles ) {
       var indices = {};
       _.each([ 'main', 2, 5, 7, 8, 9, 10, 11 ], function( file ) {
         indices[ file ] = orderedFiles.indexOf( 'test/fixtures/' + file + '.js' );
@@ -72,8 +74,6 @@ exports['dep-concat'] = {
       }).length, 8, 'all files included' );
 
       test.done();
-    }, {
-      basePath: 'test/fixtures/'
     });
   }
 };

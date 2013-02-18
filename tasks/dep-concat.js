@@ -31,7 +31,7 @@ module.exports = function( grunt ) {
       });
 
       var deferred = when.defer();
-      fileGraph.topoSortFiles( sources, function( orderedFiles ) {
+      fileGraph.topoSortFiles( sources, options, function( orderedFiles ) {
         var src = helpers.concat( orderedFiles );
 
         grunt.file.write( f.dest, src );
@@ -41,7 +41,7 @@ module.exports = function( grunt ) {
         }
 
         deferred.resolve( task.errorCount );
-      }, options );
+      });
 
       return deferred.promise;
     }).then(function( errorCounts ) {

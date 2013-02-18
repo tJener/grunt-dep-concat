@@ -56,18 +56,23 @@ exports.init = function( grunt ) {
   exports.topoSortFiles = function(
     // Array of filenames that will be scanned to determine dependencies.
     files,
-    // This helper is async, callback is called when finished.
-    callback,
     // Optional options.
     //   - basePath: Where all paths scanned are relative from.
-    options
+    options,
+    // This helper is async, callback is called when finished.
+    callback
   ) {
+    if ( typeof options === 'function' ) {
+      options = {};
+      callback = options;
+    }
+
     var orderedFiles = [];
 
     // We destructively iterate through files, so do this on a copy.
     files = files.slice(0);
 
-    options = _.defaults( options || {}, {
+    options = _.defaults( options, {
       basePath: ''
     });
 
