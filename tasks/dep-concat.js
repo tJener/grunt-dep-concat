@@ -9,17 +9,18 @@
 module.exports = function( grunt ) {
   var fileGraph = require( './lib/file-graph' ).init( grunt );
   var helpers = require( 'grunt-lib-legacyhelpers' ).init( grunt );
+  var when = require( 'when' );
 
   // ==========================================================================
   // TASKS
   // ==========================================================================
 
   grunt.registerMultiTask( 'depconcat', 'Concatenate files, ordered by dependencies.', function() {
-    var done = this.async();
-
+    var task    = this;
+    var done    = this.async();
     var options = this.options();
 
-    this.files.forEach(function( f ) {
+    when.map( this.files, function( f ) {
       var sources = f.src.filter(function( path ) {
         if ( !grunt.file.exists( path )) {
           grunt.log.warn( 'Source file "' + path + '" not found.' );
@@ -29,19 +30,27 @@ module.exports = function( grunt ) {
         return true;
       });
 
+      var deferred = when.defer();
       fileGraph.topoSortFiles( sources, function( orderedFiles ) {
         var src = helpers.concat( orderedFiles );
 
         grunt.file.write( f.dest, src );
 
-        if ( this.errorCount ) {
-          done( false );
-          return;
+        if ( !task.errorCount ) {
+          grunt.log.writeln( 'File "' + f.dest + '" created.' );
         }
 
-        grunt.log.writeln('File "' + f.dest + '" created.');
-        done( true );
-      }.bind( this ), options );
-    }, this );
+        deferred.resolve( task.errorCount );
+      }, options );
+
+      return deferred.promise;
+    }).then(function( errorCounts ) {
+      var errorCount = errorCounts.reduce(function( prev, curr ) {
+        return prev + curr;
+      });
+
+      done( !errorCount );
+    });
   });
+
 };
