@@ -36,7 +36,7 @@ exports['dep-concat'] = {
   helper: function( test ) {
     var _ = grunt.util._;
 
-    test.expect( 11 );
+    test.expect( 12 );
     var depList = fileGraph.parseFile( 'test/fixtures/main.js', {
       basePath: 'test/fixtures/'
     });
@@ -56,7 +56,7 @@ exports['dep-concat'] = {
       basePath: 'test/fixtures/'
     }, function( orderedFiles ) {
       var indices = {};
-      _.each([ 'main', 2, 5, 7, 8, 9, 10, 11 ], function( file ) {
+      _.each([ 'main', 2, 5, 7, 8, 9, 10, 11, 'somedir/12' ], function( file ) {
         indices[ file ] = orderedFiles.indexOf( 'test/fixtures/' + file + '.js' );
       });
 
@@ -68,10 +68,11 @@ exports['dep-concat'] = {
       test.ok( indices[ '5' ] > indices[ '11' ] );
       test.ok( indices[ '11' ] > indices[ '9' ] );
       test.ok( indices[ '11' ] > indices[ '2' ] );
+      test.ok( indices[ '9' ] > indices[ 'somedir/12' ] );
 
       test.equal( _.filter( indices, function( e ) {
         return e !== -1;
-      }).length, 8, 'all files included' );
+      }).length, 9, 'all files included' );
 
       test.done();
     });

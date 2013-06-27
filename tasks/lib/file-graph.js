@@ -143,7 +143,7 @@ exports.init = function( grunt ) {
         }
 
         if ( fileList ) {
-          var files = _.words( split[1], ',' ).map( trimElems );
+          var files = _.words( split[1], ',' ).map( trimElems ).map( normalizePath );
           push.apply( fileList, files );
         }
       }
@@ -161,6 +161,10 @@ exports.init = function( grunt ) {
 
   var trimElems = function( str ) {
     return _( str ).trim();
+  };
+
+  var normalizePath = function( p ) {
+    return p.replace( /[\/\\]+/g, path.sep );
   };
 
   return exports;
