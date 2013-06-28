@@ -8,6 +8,7 @@
 
 var path = require( 'path' );
 var exec = require( 'child_process' ).exec;
+var tsort = require('tsort');
 
 exports.init = function( grunt ) {
   var exports = {};
@@ -97,17 +98,22 @@ exports.init = function( grunt ) {
       }
     }
 
-    var command = 'echo "' + depGraphString + '" | tsort';
-    exec( command, function( error, stdout, stderr ) {
-      var tsortOrderedFiles = _( stdout ).words( '\n' ).reverse();
-      push.apply( orderedFiles, tsortOrderedFiles );
+    var graph = tsort();
+    var unsorted = depGraphString.split( '\n' );
+    for(var i = 0; i < unsorted.length - 1; i ++) {
+      var split = unsorted[i].split( /\s+/ );
 
-      if ( stderr !== '' ) {
-        grunt.log.error( stderr );
+      if ( split[1] !== split[0] ) {
+        graph.add( split[1], split[0] );
+      } else {
+        graph.add( split[0] );
       }
+    }
 
-      callback( orderedFiles );
-    });
+    var sortedGraph = graph.sort();
+    push.apply( orderedFiles, sortedGraph );
+
+    callback( orderedFiles );
   };
 
   exports.parseFile = function( filepath, options ) {
@@ -143,7 +149,7 @@ exports.init = function( grunt ) {
         }
 
         if ( fileList ) {
-          var files = _.words( split[1], ',' ).map( trimElems ).map( normalizePath );
+          var files = _.words( split[1], ',' ).map( trimElems ).map( exports.normalizePath );
           push.apply( fileList, files );
         }
       }
@@ -163,7 +169,7 @@ exports.init = function( grunt ) {
     return _( str ).trim();
   };
 
-  var normalizePath = function( p ) {
+  exports.normalizePath = function( p ) {
     return p.replace( /[\/\\]+/g, path.sep );
   };
 

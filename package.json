@@ -28,7 +28,9 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "when": "~1.8.0"
+    "when": "~1.8.0",
+    "path": "0.4.9",
+    "tsort": ">= 0.0.1"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "0.1.1",

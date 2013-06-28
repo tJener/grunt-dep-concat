@@ -21,7 +21,7 @@ module.exports = function( grunt ) {
     var options = this.options();
 
     when.map( this.files, function( f ) {
-      var sources = f.src.filter(function( path ) {
+      var sources = f.src.map( fileGraph.normalizePath ).filter(function( path ) {
         if ( !grunt.file.exists( path )) {
           grunt.log.warn( 'Source file "' + path + '" not found.' );
           return false;
